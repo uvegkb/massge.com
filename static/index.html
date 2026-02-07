@@ -1,0 +1,59 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Massg</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="app">
+    <header class="topbar">
+      <div class="logo">MASSG</div>
+      <div id="userBadge" class="badge hidden"></div>
+    </header>
+
+    <section id="authView" class="panel">
+      <div class="card">
+        <h1>Welcome</h1>
+        <p>Create an account or login to start chatting.</p>
+        <div class="tabs">
+          <button id="tabLogin" class="tab active">Login</button>
+          <button id="tabRegister" class="tab">Register</button>
+        </div>
+        <form id="loginForm" class="form">
+          <input id="loginUser" type="text" placeholder="Username" required>
+          <input id="loginPass" type="password" placeholder="Password" required>
+          <button type="submit">Login</button>
+        </form>
+        <form id="registerForm" class="form hidden">
+          <input id="regUser" type="text" placeholder="Username" required>
+          <input id="regPass" type="password" placeholder="Password" required>
+          <button type="submit">Create Account</button>
+        </form>
+        <div id="authError" class="error"></div>
+      </div>
+    </section>
+
+    <section id="chatView" class="chat hidden">
+      <div id="messages" class="messages"></div>
+      <div class="composer">
+        <div class="emoji-wrap">
+          <button id="emojiToggle" class="icon-btn" title="Emoji">😀</button>
+          <div id="emojiPanel" class="emoji-panel hidden"></div>
+        </div>
+        <input id="textInput" type="text" placeholder="Type a message...">
+        <label class="upload-btn" title="Upload image">
+          <input id="imageInput" type="file" accept="image/*">
+          <span class="upload-icon">📷</span>
+          <span class="upload-text">Photo</span>
+        </label>
+        <button id="sendBtn">Send</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

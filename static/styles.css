@@ -1,0 +1,298 @@
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&display=swap");
+
+:root {
+  --bg1: #090b1a;
+  --bg2: #0f1b2d;
+  --bg3: #0d1424;
+  --accent: #ff8a00;
+  --accent2: #ff3d81;
+  --accent3: #29e6a7;
+  --text: #f6f2ff;
+  --muted: #a8b4d9;
+  --card: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.15);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Sora", "Trebuchet MS", sans-serif;
+  color: var(--text);
+  background: linear-gradient(160deg, var(--bg1), var(--bg2));
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.bg {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(540px 240px at 20% 10%, rgba(255,138,0,0.22), transparent 60%),
+    radial-gradient(520px 240px at 85% 25%, rgba(255,61,129,0.18), transparent 60%),
+    radial-gradient(680px 320px at 50% 90%, rgba(41,230,167,0.16), transparent 60%);
+  filter: blur(0.5px);
+  z-index: -1;
+}
+
+.app {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 28px 20px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-weight: 800;
+  letter-spacing: 4px;
+  font-size: 22px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: linear-gradient(90deg, rgba(255,138,0,0.12), rgba(255,61,129,0.12));
+  text-shadow: 0 0 12px rgba(255,138,0,0.45);
+}
+
+.badge {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  font-size: 14px;
+}
+
+.panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card {
+  width: min(420px, 92vw);
+  padding: 26px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+}
+
+.card h1 {
+  margin: 0 0 6px;
+}
+
+.card p {
+  margin: 0 0 16px;
+  color: var(--muted);
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tab {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.tab.active {
+  background: linear-gradient(90deg, rgba(255,138,0,0.2), rgba(255,61,129,0.2));
+  border-color: rgba(255,138,0,0.5);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form input {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.2);
+  color: var(--text);
+}
+
+.form button {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: none;
+  color: #1b0c10;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.error {
+  min-height: 20px;
+  margin-top: 10px;
+  color: #ff7a7a;
+}
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: clamp(420px, 70vh, 860px);
+}
+
+.messages {
+  flex: 1;
+  overflow: auto;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.message {
+  max-width: 75%;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+}
+
+.message.me {
+  align-self: flex-end;
+  border-color: rgba(255,138,0,0.45);
+  background: rgba(255,138,0,0.14);
+}
+
+.message .meta {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.message img {
+  max-width: 100%;
+  border-radius: 12px;
+  margin-top: 8px;
+}
+
+.composer {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+  position: relative;
+}
+
+.emoji-wrap {
+  position: relative;
+}
+
+.icon-btn {
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.composer input[type="text"] {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.2);
+  color: var(--text);
+}
+
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  cursor: pointer;
+  user-select: none;
+}
+
+.upload-btn input {
+  display: none;
+}
+
+.upload-icon {
+  font-size: 16px;
+}
+
+.upload-text {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.composer button#sendBtn {
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  color: #1b0c10;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.emoji-panel {
+  position: absolute;
+  bottom: 52px;
+  left: 0;
+  width: min(320px, 80vw);
+  max-height: 240px;
+  overflow: auto;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(10,12,24,0.9);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+  z-index: 5;
+}
+
+.emoji-panel button {
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.hidden { display: none; }
+
+@media (max-width: 720px) {
+  .app {
+    padding: 20px 14px 30px;
+  }
+  .chat { height: clamp(380px, 74vh, 820px); }
+  .composer {
+    grid-template-columns: 1fr;
+  }
+  .emoji-panel {
+    width: 92vw;
+    grid-template-columns: repeat(9, 1fr);
+  }
+}
