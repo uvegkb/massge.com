@@ -3,4 +3,3 @@ uvicorn[standard]==0.30.6
 python-multipart==0.0.9
 pymongo==4.8.0
 certifi==2024.8.30
-python==3.12.0
