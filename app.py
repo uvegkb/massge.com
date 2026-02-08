@@ -24,10 +24,16 @@ os.makedirs(UPLOADS_DIR, exist_ok=True)
 
 MONGODB_URI = os.environ.get("MONGODB_URI", "").strip()
 MONGODB_DB = os.environ.get("MONGODB_DB", "massg").strip() or "massg"
+MONGODB_TLS_INSECURE = os.environ.get("MONGODB_TLS_INSECURE", "").strip().lower() in {"1", "true", "yes"}
 if not MONGODB_URI:
     raise RuntimeError("MONGODB_URI is required. Set it in your environment.")
 
-mongo = MongoClient(MONGODB_URI, tlsCAFile=certifi.where())
+mongo = MongoClient(
+    MONGODB_URI,
+    tlsCAFile=certifi.where(),
+    tlsAllowInvalidCertificates=MONGODB_TLS_INSECURE,
+    tlsAllowInvalidHostnames=MONGODB_TLS_INSECURE,
+)
 db = mongo[MONGODB_DB]
 users = db["users"]
 tokens = db["tokens"]
