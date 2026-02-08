@@ -1,4 +1,4 @@
-﻿const authView = document.getElementById("authView");
+const authView = document.getElementById("authView");
 const chatView = document.getElementById("chatView");
 const messagesEl = document.getElementById("messages");
 const userBadge = document.getElementById("userBadge");
@@ -18,6 +18,13 @@ const emojiPanel = document.getElementById("emojiPanel");
 let ws = null;
 let token = localStorage.getItem("token") || "";
 let username = localStorage.getItem("username") || "";
+const pendingByClientId = new Map();
+const sendQueue = [];
+let reconnectTimer = null;
+
+function setError(msg) {
+  authError.textContent = msg || "";
+}
 
 function showAuth() {
   authView.classList.remove("hidden");
@@ -32,12 +39,19 @@ function showChat() {
   userBadge.textContent = username;
 }
 
-function setError(msg) {
-  authError.textContent = msg || "";
-}
-
 function addMessage(msg) {
   if (msg.username === "system") return;
+  if (msg.client_id && pendingByClientId.has(msg.client_id)) {
+    const el = pendingByClientId.get(msg.client_id);
+    pendingByClientId.delete(msg.client_id);
+    const meta = el.querySelector(".meta");
+    if (meta) {
+      meta.textContent = `${msg.username} · ${new Date(msg.created_at * 1000).toLocaleTimeString()}`;
+    }
+    el.classList.remove("pending");
+    return;
+  }
+
   const div = document.createElement("div");
   div.className = "message" + (msg.username === username ? " me" : "");
   const meta = document.createElement("div");
@@ -58,40 +72,84 @@ function addMessage(msg) {
 
 async function loginOrRegister(endpoint, payload) {
   setError("");
-  const res = await fetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    setError(data.detail || "Request failed");
-    return;
+  try {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setError(data.detail || "Request failed");
+      return;
+    }
+    token = data.token;
+    username = data.username;
+    localStorage.setItem("token", token);
+    localStorage.setItem("username", username);
+    showChat();
+    connectWS();
+  } catch {
+    setError("Network error");
   }
-  token = data.token;
-  username = data.username;
-  localStorage.setItem("token", token);
-  localStorage.setItem("username", username);
-  showChat();
-  connectWS();
+}
+
+function wsUrl() {
+  const proto = location.protocol === "https:" ? "wss" : "ws";
+  return `${proto}://${location.host}/ws?token=${token}`;
 }
 
 function connectWS() {
-  if (ws) ws.close();
-  ws = new WebSocket(`${location.origin.replace("http", "ws")}/ws?token=${token}`);
+  if (ws && (ws.readyState === 0 || ws.readyState === 1)) return;
+  ws = new WebSocket(wsUrl());
+  ws.onopen = () => {
+    console.log("[WS] connected");
+    flushQueue();
+  };
+  ws.onclose = () => {
+    console.warn("[WS] closed");
+    scheduleReconnect();
+  };
+  ws.onerror = (e) => {
+    console.error("[WS] error", e);
+  };
   ws.onmessage = (ev) => {
-    const payload = JSON.parse(ev.data);
-    if (payload.type === "history") {
-      messagesEl.innerHTML = "";
-      payload.messages.forEach(addMessage);
-    } else if (payload.type === "message") {
-      addMessage(payload.message);
+    try {
+      const payload = JSON.parse(ev.data);
+      if (payload.type === "history") {
+        messagesEl.innerHTML = "";
+        payload.messages.forEach(addMessage);
+      } else if (payload.type === "message") {
+        addMessage(payload.message);
+      }
+    } catch (err) {
+      console.error("[WS] bad JSON", err);
     }
   };
 }
 
-async function sendMessage() {
+function scheduleReconnect() {
+  if (reconnectTimer) return;
+  reconnectTimer = setTimeout(() => {
+    reconnectTimer = null;
+    connectWS();
+  }, 800);
+}
+
+function flushQueue() {
   if (!ws || ws.readyState !== 1) return;
+  while (sendQueue.length > 0) {
+    const payload = sendQueue.shift();
+    try {
+      ws.send(JSON.stringify(payload));
+    } catch (err) {
+      console.error("[SEND] queued send failed", err);
+      break;
+    }
+  }
+}
+
+async function sendMessage() {
   const text = textInput.value.trim();
   let image_url = "";
   if (imageInput.files && imageInput.files[0]) {
@@ -105,7 +163,33 @@ async function sendMessage() {
     }
   }
   if (!text && !image_url) return;
-  ws.send(JSON.stringify({ text, image_url }));
+
+  const clientId = (crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2);
+  const localEl = document.createElement("div");
+  localEl.className = "message me pending";
+  const meta = document.createElement("div");
+  meta.className = "meta";
+  meta.textContent = `${username} · sending...`;
+  const body = document.createElement("div");
+  body.textContent = text || "";
+  localEl.appendChild(meta);
+  localEl.appendChild(body);
+  if (image_url) {
+    const img = document.createElement("img");
+    img.src = image_url;
+    localEl.appendChild(img);
+  }
+  messagesEl.appendChild(localEl);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  pendingByClientId.set(clientId, localEl);
+
+  const payload = { text, image_url, client_id: clientId };
+  if (ws && ws.readyState === 1) {
+    ws.send(JSON.stringify(payload));
+  } else {
+    sendQueue.push(payload);
+    connectWS();
+  }
   textInput.value = "";
 }
 
