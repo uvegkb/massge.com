@@ -1,0 +1,18 @@
+﻿# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+
+# Env
+.venv/
+.env
+
+# Render/OS
+.DS_Store
+Thumbs.db
+
+# Project data (keep out of git)
+data/
+uploads/

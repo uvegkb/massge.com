@@ -15,6 +15,7 @@ from fastapi import (
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+import certifi
 from pymongo import MongoClient, ASCENDING
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -26,7 +27,7 @@ MONGODB_DB = os.environ.get("MONGODB_DB", "massg").strip() or "massg"
 if not MONGODB_URI:
     raise RuntimeError("MONGODB_URI is required. Set it in your environment.")
 
-mongo = MongoClient(MONGODB_URI)
+mongo = MongoClient(MONGODB_URI, tlsCAFile=certifi.where())
 db = mongo[MONGODB_DB]
 users = db["users"]
 tokens = db["tokens"]
